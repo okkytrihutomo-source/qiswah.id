@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));
 
 const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING || '';
 const pool = databaseUrl
-  ? new Pool({ connectionString: databaseUrl, max: 5, idleTimeoutMillis: 10000, connectionTimeoutMillis: 5000, ssl: databaseUrl.includes('sslmode=require') ? undefined : { rejectUnauthorized: false } })
+  ? new Pool({ connectionString: databaseUrl, max: 5, idleTimeoutMillis: 10000, connectionTimeoutMillis: 5000 })
   : null;
 
 const demoPackages = [
@@ -121,6 +121,7 @@ app.post('/api/chat', async (req, res) => {
   res.json({ answer });
 });
 
-app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+// Express 5-compatible fallback for the landing page.
+app.use((_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.listen(port, () => console.log(`QISWAH.id listening on ${port}; database=${pool ? 'configured' : 'not-configured'}`));
